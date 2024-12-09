@@ -7,6 +7,21 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400&display=swap" rel="stylesheet">
   <style>
+    /* Flecha centrada */
+    .arrow {
+    display: block;
+    font-size: 2rem; /* Tamaño ajustable */
+    color: white;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+    text-align: center; /* Centrar horizontalmente */
+    margin-top: 20px; /* Separación del texto de la pregunta */
+  }
+
+  .arrow:hover {
+    opacity: 1;
+  }
     /* Tipografía global */
     * {
       font-family: 'League Spartan', sans-serif;
@@ -103,11 +118,47 @@
       max-width: 150px;
       margin-bottom: 20px;
     }
+        /* Gradiente pantalla inicial*/
+  .intro-gradient {
+    background: linear-gradient(180deg, #ffa43a, #975a14, #786cf8, #d8882d);
+    background-size: 400% 400%;
+    animation: gradientMove 25s ease infinite;
+  }
+
+  @keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 100%; }
+    50% { background-position: 100% 50%; }
+    0% { background-position: 50% 0%; }
+  }
+
+   /* Fondo radial animado */
+  .question-gradient {
+    position: relative;
+    background: radial-gradient(circle, rgba(165, 114, 10, 0.284), transparent 70%);
+    background-size: 150% 150%;
+    animation: pulse 4s infinite;
+    overflow: hidden;
+  }
+
+  /* Animación de latido */
+  @keyframes pulse {
+    0%, 100% {
+      background-size: 150% 150%;
+      opacity: 0.8;
+    }
+    50% {
+      background-size: 160% 160%;
+      opacity: 1;
+    }
+  }
+  
   </style>
 </head>
 <body>
   <!-- Selección de nivel -->
-  <div id="level-selection" class="h-screen flex flex-col justify-center items-center text-center">
+  <div id="level-selection" class="h-screen flex flex-col justify-center items-center text-center intro-gradient">
     <img id="logo" src="https://acelerame.org/wp-content/uploads/2024/11/logotipo-celera-claro.svg" alt="Logo Celera">
     <p class="text-lg text-gray-200 mb-6">Selecciona el nivel en el que quieres comenzar:</p>
     <div class="grid grid-cols-1 gap-4 w-3/4">
@@ -118,10 +169,11 @@
   </div>
 
   <!-- Juego -->
-  <div id="game-container" class="hidden h-screen flex flex-col justify-between">
+  <div id="game-container" class="hidden h-screen flex flex-col justify-between question-gradient">
     <div id="card" class="flex-1 flex flex-col justify-center items-center text-center px-8">
       <p id="level-title" class="text-sm uppercase mb-2"></p>
       <p id="question" class="text-2xl"></p>
+      <span class="arrow" id="next-question">&rarr;</span> <!-- Flecha única -->
     </div>
     <div class="w-full p-4">
         <button id="select-level" class="border-button">Volver a la selección de nivel</button>
@@ -315,6 +367,7 @@
     });
 
     document.getElementById("card").addEventListener("click", loadNextQuestion);
-  </script>
+
+ </script>
 </body>
 </html>
