@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CeleraX Game</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400&display=swap" rel="stylesheet">
+  <style>
+    /* Tipografía global */
+    * {
+      font-family: 'League Spartan', sans-serif;
+      font-weight: 400;
+      color: white;
+    }
+
+    /* Contador de preguntas */
+    #question-counter {
+      text-align: center;
+      font-size: 0.8rem; /* Texto reducido */
+      color: gray;
+      margin-top: 10px; /* Añadido margen superior para separarlo del botón */
+    }
+
+    #level-title {
+      font-weight: 400;
+    }
+
+    /* Fondo principal */
+    body {
+      background-color: #2b2b2b;
+    }
+
+    #level-selection, #game-container {
+      background-color: #2b2b2b;
+    }
+
+    /* Botón de "volver a la selección" */
+    #select-level {
+      margin: auto;
+      display: block; /* Centramos el botón */
+      padding: 8px 16px;
+      font-size: 14px;
+      text-transform: none;
+    }
+
+    /* Estilo de botones */
+    .border-button {
+      border: 2px solid white;
+      color: white;
+      background: none;
+      border-radius: 999px; /* Bordes redondeados */
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+
+    .border-button:hover {
+      background: white;
+      color: #2b2b2b;
+    }
+
+    /* Botón de "volver a la selección" */
+    #select-level {
+      margin-top: 30px; /* Más separado de la pregunta principal */
+      padding: 6px 16px;
+      font-size: 14px;
+      text-transform: none;
+    }
+
+    /* Preguntas */
+    #question {
+      font-size: 2.5rem; /* Tamaño aumentado */
+      line-height: 1;
+    }
+
+    /* Gradiente especial para las preguntas bonus */
+    .bonus-gradient {
+      background: linear-gradient(135deg, #2b2e4a, #5c5470, #f7f7ff);
+      background-size: 400% 400%;
+      animation: gradientMove 8s ease infinite;
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Ajustes para BONUS TRACK */
+    .bonus-header {
+      font-size: 1rem; /* Texto reducido */
+      margin-bottom: -20px;
+    }
+
+    #future-question {
+      margin-bottom: 50px; /* Espaciado antes del botón */
+      font-size: 2.5rem; /* Tamaño aumentado */
+      line-height: 1;
+    }
+
+    /* Logo */
+    #logo {
+      max-width: 150px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Selección de nivel -->
+  <div id="level-selection" class="h-screen flex flex-col justify-center items-center text-center">
+    <img id="logo" src="https://acelerame.org/wp-content/uploads/2024/11/logotipo-celera-claro.svg" alt="Logo Celera">
+    <p class="text-lg text-gray-200 mb-6">Selecciona el nivel en el que quieres comenzar:</p>
+    <div class="grid grid-cols-1 gap-4 w-3/4">
+      <button data-level="Intrapersonal" class="border-button level-btn">Intrapersonal</button>
+      <button data-level="Interpersonal" class="border-button level-btn">Interpersonal</button>
+      <button data-level="Legado y propósito" class="border-button level-btn">Legado y propósito</button>
+    </div>
+  </div>
+
+  <!-- Juego -->
+  <div id="game-container" class="hidden h-screen flex flex-col justify-between">
+    <div id="card" class="flex-1 flex flex-col justify-center items-center text-center px-8">
+      <p id="level-title" class="text-sm uppercase mb-2"></p>
+      <p id="question" class="text-2xl"></p>
+    </div>
+    <div class="w-full p-4">
+        <button id="select-level" class="border-button">Volver a la selección de nivel</button>
+        <p id="question-counter"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pregunta sorpresa -->
+  <div id="future-container" class="hidden h-screen flex flex-col justify-center items-center text-center text-white bonus-gradient">
+    <div class="w-full p-4">
+      <p class="bonus-header uppercase">DESBLOQUEASTE UNA PREGUNTA SOBRE EL FUTURO</p>
+    </div>
+    <p id="future-question" class="text-2xl px-9 mt-7"></p>
+    <button id="future-return" class="border-button">Volver a la selección de nivel</button>
+  </div>
+
+  <script>
+    const questions = {
+        "Intrapersonal": [
+      "¿Cómo te sientes hoy?", "¿Cuándo fue la última vez que sentiste alegría?", "¿Cuál es tu emoción predominante?",
+      "¿Con qué emoción dirías que ves el mundo?", "¿Cuál ha sido el momento más feliz de tu vida?",
+      "¿Qué te encantaba hacer cuando eras niño?", "¿Qué tareas te quitan energía?",
+      "¿Qué haces para cuidar tu salud mental?", "¿Cómo manejas el estrés en tu día a día?",
+      "¿Qué hábitos tienes para conectar contigo mismo?", "¿Qué parte de tu rutina diaria disfrutas más?",
+      "¿Qué te gustaría cambiar de ti mismo?", "¿Cómo lidias con el fracaso?",
+      "¿Qué emociones te cuesta expresar?", "¿Qué situación reciente te enseñó algo importante?",
+      "¿Cómo defines tu autoestima actualmente?", "¿Qué cosas pequeñas te hacen feliz?",
+      "¿Cómo practicas el autocuidado?", "¿Qué actividad te hace sentir pleno?",
+      "¿Cuál es tu mayor miedo?", "¿Qué te gustaría aprender sobre ti mismo?",
+      "¿Qué haces para mejorar tu estabilidad emocional?", "¿Cómo reaccionas cuando te sientes bajo presión?",
+      "¿Qué recuerdo de tu infancia te hace sonreír?", "¿Qué objetivo personal estás trabajando en este momento?",
+      "¿Qué papel juega la gratitud en tu vida?", "¿Qué habilidades emocionales te gustaría desarrollar?",
+      "¿Qué lugar te hace sentir tranquilo?", "¿Qué importancia le das al tiempo para ti mismo?",
+      "¿Cómo te recuperas de momentos difíciles?", "¿Qué harías si no tuvieras miedo al fracaso?",
+      "¿Qué emoción sientes más a menudo últimamente?", "¿Cómo celebras tus logros personales?",
+      "¿Qué significa para ti estar en paz contigo mismo?", "¿Qué haces para cuidar tu bienestar físico?",
+      "¿Qué acción reciente te llenó de orgullo?", "¿Qué necesitas para sentirte equilibrado?",
+      "¿Cómo reaccionas cuando alguien te critica?", "¿Qué emoción describiría tu estado actual?",
+      "¿Qué experiencia reciente te enseñó algo sobre ti?", "¿Cómo manejas los días en los que no tienes motivación?",
+      "¿Qué personas te inspiran a ser mejor?", "¿Cómo te defines a ti mismo en tres palabras?",
+      "¿Qué cambios pequeños has hecho para mejorar tu vida?", "¿Qué te hace sentir amado y cuidado?",
+      "¿Qué cualidad admiras más en ti mismo?", "¿Cómo mantienes una mentalidad positiva?",
+      "¿Qué haces para relajarte después de un día difícil?", "¿Qué significa para ti tener éxito en la vida?"
+    ],
+    "Interpersonal": [
+      "¿Qué cualidad valoras más en los demás?", "¿Cómo manejas los conflictos en equipo?",
+      "¿Qué te motiva a liderar?", "¿Cómo fomentas la confianza en un grupo?", "¿Qué haces para mejorar tu comunicación?",
+      "¿Cómo defines una relación saludable?", "¿Qué habilidad interpersonal te gustaría desarrollar más?",
+      "¿Qué experiencia te marcó en el trabajo en equipo?", "¿Cómo apoyas a los demás en momentos difíciles?",
+      "¿Qué significa para ti ser un buen líder?", "¿Qué herramientas usas para mejorar tus relaciones?",
+      "¿Cómo demuestras gratitud hacia otros?", "¿Qué experiencia interpersonal te ha marcado más?",
+      "¿Qué haces para mostrar apoyo a tus compañeros?", "¿Cómo defines el éxito en tus relaciones?",
+      "¿Qué acciones tomas para resolver malentendidos?", "¿Qué habilidades sociales admiras en otros?",
+      "¿Cómo promueves la inclusión en un grupo?", "¿Qué te hace sentir parte de una comunidad?",
+      "¿Qué has aprendido recientemente sobre trabajar en equipo?", "¿Cómo reaccionas ante personalidades difíciles?",
+      "¿Qué haces para mejorar tu capacidad de escuchar?", "¿Qué papel juega la confianza en tus relaciones?",
+      "¿Qué aprendizaje clave tienes de tus relaciones pasadas?", "¿Cómo mantienes relaciones significativas?",
+      "¿Qué significa para ti ser un buen amigo?", "¿Qué habilidades te gustaría adquirir para liderar mejor?",
+      "¿Cómo equilibras ser un líder y un colaborador?", "¿Qué habilidades interpersonales te gustaría mejorar?",
+      "¿Qué crees que aportas a los demás?", "¿Qué te hace sentir valorado en un equipo?",
+      "¿Cómo manejas los desacuerdos de manera efectiva?", "¿Qué estrategias utilizas para comunicarte mejor?",
+      "¿Qué te inspira a formar conexiones profundas?", "¿Cómo manejas la presión en un grupo?",
+      "¿Qué decisiones refuerzan tus valores?", "¿Qué proyecto te emociona más actualmente?",
+      "¿Qué significa para ti una vida con propósito?", "¿Cómo contribuyes a tu comunidad?",
+      "¿Qué inspira tus metas a largo plazo?", "¿Qué valores son los más importantes en tu vida?"
+    ],
+    "Legado y propósito": [
+      "¿Qué impacto te gustaría dejar en el mundo?", "¿Cómo defines tu propósito en la vida?",
+      "¿Qué metas te inspiran más?", "¿Cómo equilibras tu vida personal y profesional?",
+      "¿Qué legado te gustaría construir?", "¿Qué te motiva a perseguir tus sueños?",
+      "¿Cómo manejas los obstáculos en el camino hacia tus metas?", "¿Qué pasos concretos estás tomando para cumplir tus objetivos?",
+      "¿Cómo encuentras inspiración en tu día a día?", "¿Qué decisiones recientes han definido tu camino?",
+      "¿Qué aprendizajes han dado forma a tu visión de futuro?", "¿Cómo evalúas si estás viviendo alineado a tus valores?",
+      "¿Qué estrategias utilizas para mantenerte resiliente?", "¿Cómo defines el éxito personal?",
+      "¿Qué causas sociales te apasionan?", "¿Qué te impulsa a ser una mejor versión de ti mismo?",
+      "¿Cómo conectas tus acciones con tu propósito?", "¿Qué impacto positivo has dejado en tu entorno?",
+      "¿Qué cambios estás haciendo para construir tu legado?", "¿Qué decisiones pasadas te enorgullecen más?"
+    ]
+    };
+
+    const futureQuestions = [
+    "Si un robot automatizara el 95% de lo que haces, ¿qué 5% de ti mantendrías?",
+  "¿Qué consejo le daría tu yo adolescente a tu yo del futuro?",
+  "¿Qué es lo más difícil que te ha tocado desaprender?",
+  "Si no pudieras dormir, ¿qué harías con todo ese tiempo?",
+  "¿Cuál es el peor consejo que has recibido?",
+  "¿Qué te hace dudar de tus propias ideas?",
+  "¿Qué moda desearías que nunca volviera en el futuro?",
+  "Es 2050. Llegas al lugar en el que naciste, ¿qué te gustaría que no hubiera cambiado?",
+  "¿Qué alimento te daría pena que se perdiera por culpa del cambio climático?",
+  "Es 2050, tu trabajo ha desaparecido, ¿a qué te dedicas?",
+  "Si pudieras cargar cualquier habilidad directamente en tu cerebro, ¿cuál elegirías?",
+  "Si pudieras viajar al futuro y traer de vuelta una sola tecnología, ¿cuál sería y cómo crees que cambiaría tu vida?",
+  "Elige una canción que represente tu momento vital actual.",
+  "Si la humanidad se mudara a otro planeta, ¿qué tradición terrestre llevarías contigo?",
+  "¿Cómo describirías el mundo ideal para las futuras generaciones?",
+  "¿Qué rol jugarán las emociones en un mundo dominado por la inteligencia artificial?",
+  "Si pudieras garantizar la solución a un problema global, ¿cuál elegirías y por qué?",
+  "¿Qué avances tecnológicos te gustaría que nunca existieran?",
+  "Si pudieras enviar un mensaje al futuro, ¿qué les dirías?",
+  "¿Cómo crees que será la educación dentro de 50 años?",
+  "¿Qué invento actual crees que será obsoleto en 20 años?",
+  "Si tuvieras que diseñar una ciudad para el año 2100, ¿qué incluirías?",
+  "¿Qué valor humano debería preservarse a toda costa en el futuro?",
+  "¿Cómo visualizas el arte en el futuro?",
+  "¿Qué opinas sobre vivir 200 años o más, si fuera posible?",
+  "Si la tecnología pudiera resolver tus mayores miedos, ¿qué cambiaría en tu vida?",
+  "¿Qué profesiones actuales crees que desaparecerán en los próximos 30 años?",
+  "Si pudieras tener una conversación con alguien del futuro, ¿qué le preguntarías?",
+  "¿Qué impacto crees que tendrá la inteligencia artificial en tu vida en 10 años?",
+  "Si pudieras retroceder al pasado para advertir a la humanidad de un error, ¿qué les dirías?",
+  "¿Cómo crees que cambiará la forma en que amamos en el futuro?",
+  "Si las emociones pudieran transferirse entre personas como datos, ¿cómo cambiaría nuestra sociedad?",
+  "¿Qué tipo de habilidades crees que serán esenciales para sobrevivir en el futuro?",
+  "¿Cómo imaginas que serán las celebraciones en un mundo totalmente automatizado?",
+  "Si tuvieras que elegir entre vivir en una realidad virtual perfecta o el mundo real imperfecto, ¿qué escogerías?",
+  "¿Qué crees que pensará la gente del futuro sobre cómo vivimos hoy?",
+  "¿Qué lugar de la Tierra crees que podría convertirse en inhabitable en 50 años?",
+  "¿Cómo cambiaría el mundo si todos pudiéramos leer la mente de los demás?",
+  "¿Qué música crees que escucharán las próximas generaciones?",
+    ];
+
+    let currentLevel = "";
+    let currentQuestions = [];
+    let questionCounter = 0;
+
+    const levelButtons = document.querySelectorAll(".level-btn");
+    const gameContainer = document.getElementById("game-container");
+    const selectLevelButton = document.getElementById("select-level");
+    const questionElement = document.getElementById("question");
+    const questionCounterDisplay = document.getElementById("question-counter");
+    const levelTitle = document.getElementById("level-title");
+    const futureContainer = document.getElementById("future-container");
+    const futureQuestionElement = document.getElementById("future-question");
+    const futureReturnButton = document.getElementById("future-return");
+
+    levelButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        currentLevel = button.getAttribute("data-level");
+        currentQuestions = shuffle([...questions[currentLevel]]).slice(0, 20); // Barajamos y tomamos 20
+        document.getElementById("level-selection").classList.add("hidden");
+        gameContainer.classList.remove("hidden");
+        levelTitle.textContent = currentLevel;
+        questionCounter = 0;
+        loadNextQuestion();
+      });
+    });
+
+    selectLevelButton.addEventListener("click", () => {
+      gameContainer.classList.add("hidden");
+      document.getElementById("level-selection").classList.remove("hidden");
+    });
+
+    function loadNextQuestion() {
+      if (questionCounter > 0 && questionCounter % 5 === 0) {
+        showFutureQuestion();
+        return;
+      }
+
+      if (currentQuestions.length === 0) {
+        alert("Has completado todas las preguntas de este nivel. ¡Selecciona otro nivel para continuar!");
+        selectLevelButton.click();
+        return;
+      }
+
+      const nextQuestion = currentQuestions.shift();
+      questionElement.textContent = nextQuestion;
+      questionCounter++;
+      questionCounterDisplay.textContent = `Respondiste: ${questionCounter}`;
+    }
+
+    function showFutureQuestion() {
+      const randomFutureQuestion = futureQuestions[Math.floor(Math.random() * futureQuestions.length)];
+      futureQuestionElement.textContent = randomFutureQuestion;
+      gameContainer.classList.add("hidden");
+      futureContainer.classList.remove("hidden");
+    }
+
+    function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+    futureReturnButton.addEventListener("click", () => {
+      futureContainer.classList.add("hidden");
+      document.getElementById("level-selection").classList.remove("hidden");
+    });
+
+    document.getElementById("card").addEventListener("click", loadNextQuestion);
+  </script>
+</body>
+</html>
