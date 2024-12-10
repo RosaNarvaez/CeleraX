@@ -59,6 +59,15 @@
       text-transform: none;
     }
 
+    #goback-button {
+      margin-top: 20px;
+      display: block; /* Centramos el botón */
+      padding: 8px 16px;
+      font-size: 14px;
+      text-transform: none;
+    }
+
+
     /* Estilo de botones */
     .border-button {
       border: 2px solid white;
@@ -73,6 +82,19 @@
       background: white;
       color: #2b2b2b;
     }
+
+    #restart-button {
+    margin-top: 20px;
+    border: 0px solid white;
+    padding: 10px 20px;
+    font-size: 16px;
+    text-transform: none;
+    border-radius: 999px;
+    background: none;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
 
     /* Botón de "volver a la selección" */
     #select-level {
@@ -153,6 +175,55 @@
       opacity: 1;
     }
   }
+
+
+  #cta-button {
+    margin-top: 20px;
+    border: 2px solid #ffffff;
+    display: block; /* Centramos el botón */
+    padding: 10px 20px;
+    font-size: 16px;
+    text-transform: none;
+    border-radius: 999px;
+  }
+
+  #cta-button:hover {
+    background-color: #ffffff;
+    color: #2b2b2b;
+  }
+
+  .border-button-results {
+      border: 0px solid white;
+      color: white;
+      background: none;
+      border-radius: 999px; /* Bordes redondeados */
+      margin: auto;
+      margin-top: 20px;
+      display: block; /* Centramos el botón */
+      padding: 8px 16px;
+      font-size: 14px;
+    }
+
+    .border-button-results:hover {
+      background: transparent;
+      color: #fff;
+    }
+
+    #result-description {
+    padding: 0 20px; /* Espaciado de 20px a cada lado */
+    max-width: 600px; /* Ancho máximo del texto */
+    margin: 0 auto; /* Centrado horizontal */
+    line-height: 1.6; /* Mejora la legibilidad */
+    text-align: center; /* Centra el texto */
+  }
+
+  .intro-description {
+    padding: 0 20px; /* Espaciado de 20px a cada lado */
+    max-width: 600px; /* Ancho máximo del texto */
+    margin: 0 auto; /* Centrado horizontal */
+    line-height: 1; /* Mejora la legibilidad */
+    text-align: center; /* Centra el texto */
+  }
   
   </style>
 </head>
@@ -160,7 +231,7 @@
   <!-- Selección de nivel -->
   <div id="level-selection" class="h-screen flex flex-col justify-center items-center text-center intro-gradient">
     <img id="logo" src="https://acelerame.org/wp-content/uploads/2024/11/logotipo-celera-claro.svg" alt="Logo Celera">
-    <p class="text-lg text-gray-200 mb-6">Selecciona el nivel en el que quieres comenzar:</p>
+    <p class="text-lg text-gray-200 mb-6 intro-description">Bienvenido a CeleraX Game, selecciona un nivel para comenzar:</p>
     <div class="grid grid-cols-1 gap-4 w-3/4">
       <button data-level="Intrapersonal" class="border-button level-btn">Intrapersonal</button>
       <button data-level="Interpersonal" class="border-button level-btn">Interpersonal</button>
@@ -176,6 +247,7 @@
       <span class="arrow" id="next-question">&rarr;</span> <!-- Flecha única -->
     </div>
     <div class="w-full p-4">
+      <button id="view-results" class="border-button-results underline">Ver mis resultados</button>
         <button id="select-level" class="border-button">Volver a la selección de nivel</button>
         <p id="question-counter"></p>
       </div>
@@ -189,6 +261,17 @@
     </div>
     <p id="future-question" class="text-2xl px-9 mt-7"></p>
     <button id="future-return" class="border-button">Volver a la selección de nivel</button>
+  </div>
+
+<!-- Resultados -->
+  <div id="result-container" class="hidden h-screen flex flex-col justify-center items-center text-center bg-gray-800 text-white px-8 intro-gradient">
+    <img id="logo" src="https://acelerame.org/wp-content/uploads/2024/11/logotipo-celera-claro.svg" alt="Logo Celera">
+    <h4 class="font-regular 8px">ERES UN...</h1>
+    <p id="result-title" class="text-3xl font-regular mb-2"></p>
+    <p id="result-description" class="text-lg mb-6"></p>
+    <p id="result-total" class="text-sm text-gray-200 mb-6"></p>
+    <button id="cta-button" class="border-button bg-white text-gray-800">Te contamos más en nuestra nueva web</button>
+    <button id="restart-button" class="border-button">Volver al inicio</button>
   </div>
 
   <script>
@@ -258,43 +341,30 @@
     const futureQuestions = [
     "Si un robot automatizara el 95% de lo que haces, ¿qué 5% de ti mantendrías?",
   "¿Qué consejo le daría tu yo adolescente a tu yo del futuro?",
-  "¿Qué es lo más difícil que te ha tocado desaprender?",
-  "Si no pudieras dormir, ¿qué harías con todo ese tiempo?",
-  "¿Cuál es el peor consejo que has recibido?",
-  "¿Qué te hace dudar de tus propias ideas?",
+  "Si en 2050 ya no fuera necesario dormir, ¿qué harías con todo ese tiempo?",
   "¿Qué moda desearías que nunca volviera en el futuro?",
   "Es 2050. Llegas al lugar en el que naciste, ¿qué te gustaría que no hubiera cambiado?",
   "¿Qué alimento te daría pena que se perdiera por culpa del cambio climático?",
   "Es 2050, tu trabajo ha desaparecido, ¿a qué te dedicas?",
   "Si pudieras cargar cualquier habilidad directamente en tu cerebro, ¿cuál elegirías?",
   "Si pudieras viajar al futuro y traer de vuelta una sola tecnología, ¿cuál sería y cómo crees que cambiaría tu vida?",
-  "Elige una canción que represente tu momento vital actual.",
+  "Elige una canción que represente cómo te sientes respecto al futuro",
   "Si la humanidad se mudara a otro planeta, ¿qué tradición terrestre llevarías contigo?",
   "¿Cómo describirías el mundo ideal para las futuras generaciones?",
   "¿Qué rol jugarán las emociones en un mundo dominado por la inteligencia artificial?",
-  "Si pudieras garantizar la solución a un problema global, ¿cuál elegirías y por qué?",
   "¿Qué avances tecnológicos te gustaría que nunca existieran?",
   "Si pudieras enviar un mensaje al futuro, ¿qué les dirías?",
-  "¿Cómo crees que será la educación dentro de 50 años?",
   "¿Qué invento actual crees que será obsoleto en 20 años?",
-  "Si tuvieras que diseñar una ciudad para el año 2100, ¿qué incluirías?",
   "¿Qué valor humano debería preservarse a toda costa en el futuro?",
   "¿Cómo visualizas el arte en el futuro?",
   "¿Qué opinas sobre vivir 200 años o más, si fuera posible?",
   "Si la tecnología pudiera resolver tus mayores miedos, ¿qué cambiaría en tu vida?",
-  "¿Qué profesiones actuales crees que desaparecerán en los próximos 30 años?",
   "Si pudieras tener una conversación con alguien del futuro, ¿qué le preguntarías?",
-  "¿Qué impacto crees que tendrá la inteligencia artificial en tu vida en 10 años?",
-  "Si pudieras retroceder al pasado para advertir a la humanidad de un error, ¿qué les dirías?",
   "¿Cómo crees que cambiará la forma en que amamos en el futuro?",
   "Si las emociones pudieran transferirse entre personas como datos, ¿cómo cambiaría nuestra sociedad?",
   "¿Qué tipo de habilidades crees que serán esenciales para sobrevivir en el futuro?",
   "¿Cómo imaginas que serán las celebraciones en un mundo totalmente automatizado?",
-  "Si tuvieras que elegir entre vivir en una realidad virtual perfecta o el mundo real imperfecto, ¿qué escogerías?",
   "¿Qué crees que pensará la gente del futuro sobre cómo vivimos hoy?",
-  "¿Qué lugar de la Tierra crees que podría convertirse en inhabitable en 50 años?",
-  "¿Cómo cambiaría el mundo si todos pudiéramos leer la mente de los demás?",
-  "¿Qué música crees que escucharán las próximas generaciones?",
     ];
 
     let currentLevel = "";
@@ -367,6 +437,85 @@
     });
 
     document.getElementById("card").addEventListener("click", loadNextQuestion);
+
+    let totalAnswered = { Intrapersonal: 0, Interpersonal: 0, Legado: 0 }; // Contador por nivel
+
+// Actualiza las preguntas respondidas por nivel
+function updateQuestionCount(level) {
+  if (level === "Intrapersonal") totalAnswered.Intrapersonal++;
+  else if (level === "Interpersonal") totalAnswered.Interpersonal++;
+  else if (level === "Legado y propósito") totalAnswered.Legado++;
+}
+
+// Determina el perfil del usuario
+function calculateProfile() {
+  const maxLevel = Object.keys(totalAnswered).reduce((a, b) => 
+    totalAnswered[a] > totalAnswered[b] ? a : b
+  );
+
+  const profiles = {
+    Intrapersonal: {
+      title: "Explorador/a de emociones",
+      description: "¡Tienes un mapa emocional mejor que el de cualquier GPS! Tu curiosidad por conocerte te convierte en un ejemplo de autoconciencia y equilibrio. Sigue explorando los océanos de tus emociones para descubrir aún más sobre ti.",
+    },
+    Interpersonal: {
+      title: "Generador/a de conexiones",
+      description: "¡Eres un auténtico motor de relaciones! Tu habilidad para comunicarte y conectar con los demás inspira a quienes te rodean. Tienes ese toque especial para construir puentes y crear equipos que brillan juntos.",
+    },
+    Legado: {
+      title: "Constructor/a de futuro",
+      description: "¡Tu visión y determinación son asombrosas! Con cada decisión, estás diseñando un legado que dejará huella. Tu capacidad para mirar al futuro y actuar en el presente es una verdadera inspiración.",
+    },
+  };
+
+  return profiles[maxLevel];
+}
+
+// Muestra la pantalla de resultados
+function showResults() {
+  const profile = calculateProfile();
+  const totalQuestions = totalAnswered.Intrapersonal + totalAnswered.Interpersonal + totalAnswered.Legado;
+
+  document.getElementById("result-title").textContent = profile.title;
+  document.getElementById("result-description").textContent = profile.description;
+  document.getElementById("result-total").textContent = ``;
+  document.getElementById("result-container").classList.remove("hidden");
+  document.getElementById("game-container").classList.add("hidden");
+}
+
+// Evento del botón "Ver mis resultados"
+document.getElementById("view-results").addEventListener("click", showResults);
+
+// Evento del botón CTA
+document.getElementById("cta-button").addEventListener("click", () => {
+  window.location.href = "https://acelerame.org/que-hacemos/#nuestra-metodologia";
+});
+
+// Actualiza el contador al responder una pregunta
+function loadNextQuestion() {
+  if (questionCounter > 0 && questionCounter % 5 === 0) {
+    showFutureQuestion();
+    return;
+  }
+
+  if (currentQuestions.length === 0) {
+    alert("Has completado todas las preguntas de este nivel. ¡Selecciona otro nivel para continuar!");
+    selectLevelButton.click();
+    return;
+  }
+
+  const nextQuestion = currentQuestions.shift();
+  questionElement.textContent = nextQuestion;
+  questionCounter++;
+  questionCounterDisplay.textContent = `Respondiste: ${questionCounter}`;
+  updateQuestionCount(currentLevel); // Incrementa el contador por nivel
+}
+
+document.getElementById("restart-button").addEventListener("click", () => {
+  document.getElementById("result-container").classList.add("hidden"); // Oculta la pantalla de resultados
+  document.getElementById("level-selection").classList.remove("hidden"); // Muestra la pantalla de selección de nivel
+});
+
 
  </script>
 </body>
